@@ -30,11 +30,11 @@ open class SSLSecurity : NSObject {
     // MARK: Properties
 
     /// The internal Starscream SSLSecurity.
-    public let security: Starscream.SSLSecurity
+    //public let security: Starscream.SSLSecurity
 
-    init(security: Starscream.SSLSecurity) {
-        self.security = security
-    }
+//    init(security: Starscream.SSLSecurity) {
+//        self.security = security
+//    }
 
     // MARK: Methods
 
@@ -45,8 +45,9 @@ open class SSLSecurity : NSObject {
     /// validation
     @objc
     public convenience init(usePublicKeys: Bool = true) {
-        let security = Starscream.SSLSecurity(usePublicKeys: usePublicKeys)
-        self.init(security: security)
+        self.init()
+//        let security = Starscream.SSLSecurity(usePublicKeys: usePublicKeys)
+//        self.init(security: security)
     }
 
 
@@ -56,10 +57,10 @@ open class SSLSecurity : NSObject {
     /// - parameter usePublicKeys: is to specific if the publicKeys or certificates should be used for SSL pinning
     /// validation
     /// - returns: a representation security object to be used with
-    public convenience init(certs: [SSLCert], usePublicKeys: Bool) {
-        let security = Starscream.SSLSecurity(certs: certs, usePublicKeys: usePublicKeys)
-        self.init(security: security)
-    }
+//    public convenience init(certs: [SSLCert], usePublicKeys: Bool) {
+//        let security = Starscream.SSLSecurity(certs: certs, usePublicKeys: usePublicKeys)
+//        self.init(security: security)
+//    }
 
     /// Returns whether or not the given trust is valid.
     ///
@@ -67,6 +68,6 @@ open class SSLSecurity : NSObject {
     /// - parameter domain: The CN domain to validate.
     /// - returns: Whether or not this is valid.
     public func isValid(_ trust: SecTrust, domain: String?) -> Bool {
-        return security.isValid(trust, domain: domain)
+        return false //security.isValid(trust, domain: domain)
     }
 }

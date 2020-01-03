@@ -64,7 +64,6 @@ open class SocketIOClient : NSObject, SocketIOClientSpec {
     public private(set) var handlers = [SocketEventHandler]()
 
     /// The manager for this socket.
-    @objc
     public private(set) weak var manager: SocketManagerSpec?
 
     /// A view into this socket where emits do not check for binary data.
@@ -99,7 +98,6 @@ open class SocketIOClient : NSObject, SocketIOClientSpec {
     ///
     /// - parameter manager: The manager for this socket.
     /// - parameter nsp: The namespace of the socket.
-    @objc
     public init(manager: SocketManagerSpec, nsp: String) {
         self.manager = manager
         self.nsp = nsp
@@ -117,7 +115,6 @@ open class SocketIOClient : NSObject, SocketIOClientSpec {
     /// Connect to the server. The same as calling `connect(timeoutAfter:withHandler:)` with a timeout of 0.
     ///
     /// Only call after adding your event listeners, unless you know what you're doing.
-    @objc
     open func connect() {
         connect(timeoutAfter: 0, withHandler: nil)
     }
@@ -129,7 +126,6 @@ open class SocketIOClient : NSObject, SocketIOClientSpec {
     /// - parameter timeoutAfter: The number of seconds after which if we are not connected we assume the connection
     ///                           has failed. Pass 0 to never timeout.
     /// - parameter handler: The handler to call when the client fails to connect.
-    @objc
     open func connect(timeoutAfter: Double, withHandler handler: (() -> ())?) {
         assert(timeoutAfter >= 0, "Invalid timeout: \(timeoutAfter)")
 

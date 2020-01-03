@@ -25,7 +25,7 @@
 import Foundation
 
 /// Protocol that is used to implement socket.io polling support
-public protocol SocketEnginePollable : SocketEngineSpec {
+public protocol SocketEnginePollable : AnyObject, SocketEngineSpec {
     // MARK: Properties
 
     /// `true` If engine's session has been invalidated.

@@ -28,7 +28,8 @@ import Starscream
 
 /// The class that handles the engine.io protocol and transports.
 /// See `SocketEnginePollable` and `SocketEngineWebsocket` for transport specific methods.
-open class SocketEngine : NSObject, URLSessionDelegate, SocketEnginePollable, SocketEngineWebsocket, ConfigSettable {
+open class SocketEngine : NSObject, URLSessionDelegate, SocketEnginePollable, SocketEngineWebsocket, ConfigSettable, WebSocketDelegate {
+
     // MARK: Properties
 
     private static let logType = "SocketEngine"
@@ -287,45 +288,39 @@ open class SocketEngine : NSObject, URLSessionDelegate, SocketEnginePollable, So
 
         addHeaders(to: &req, includingCookies: session?.configuration.httpCookieStorage?.cookies(for: urlPollingWithSid))
 
-        let stream = FoundationStream()
-        stream.enableSOCKSProxy = enableSOCKSProxy
-        ws = WebSocket(request: req, stream: stream)
+        ws = WebSocket(request: req)
+        ws?.delegate = self
         ws?.callbackQueue = engineQueue
-        ws?.enableCompression = compress
-        ws?.disableSSLCertValidation = selfSigned
-        ws?.security = security?.security
-
-        ws?.onConnect = {[weak self] in
-            guard let this = self else { return }
-
-            this.websocketDidConnect()
-        }
-
-        ws?.onDisconnect = {[weak self] error in
-            guard let this = self else { return }
-
-            this.websocketDidDisconnect(error: error)
-        }
-
-        ws?.onData = {[weak self] data in
-            guard let this = self else { return }
-
-            this.parseEngineData(data)
-        }
-
-        ws?.onText = {[weak self] message in
-            guard let this = self else { return }
-
-            this.parseEngineMessage(message)
-        }
-
-        ws?.onHttpResponseHeaders = {[weak self] headers in
-            guard let this = self else { return }
-
-            this.client?.engineDidWebsocketUpgrade(headers: headers)
-        }
-
+//        stream.enableSOCKSProxy = enableSOCKSProxy
+//        ws?.enableCompression = compress
+//        ws?.disableSSLCertValidation = selfSigned
+//        ws?.security = security?.security
         ws?.connect()
+    }
+
+    public func didReceive(event: WebSocketEvent, client: WebSocket) {
+        switch event {
+        case .connected(_):
+            websocketDidConnect()
+        case .disconnected(_, _):
+            websocketDidDisconnect(error: nil)
+        case .text(let message):
+            parseEngineMessage(message)
+        case .binary(let data):
+            parseEngineData(data)
+        case .pong(_):
+            break
+        case .ping(_):
+            break
+        case .error(let error):
+            websocketDidDisconnect(error: error)
+        case .viablityChanged(_):
+            break
+        case .reconnectSuggested(_):
+            break
+        case .cancelled:
+            break
+        }
     }
 
     /// Called when an error happens during execution. Causes a disconnection.
@@ -609,13 +604,11 @@ open class SocketEngine : NSObject, URLSessionDelegate, SocketEnginePollable, So
 
     // Moves from long-polling to websockets
     private func upgradeTransport() {
-        if ws?.isConnected ?? false {
-            DefaultSocketLogger.Logger.log("Upgrading transport to WebSockets", type: SocketEngine.logType)
-
-            fastUpgrade = true
-            sendPollMessage("", withType: .noop, withData: [], completion: nil)
-            // After this point, we should not send anymore polling messages
-        }
+        DefaultSocketLogger.Logger.log("Upgrading transport to WebSockets", type: SocketEngine.logType)
+        
+        fastUpgrade = true
+        sendPollMessage("", withType: .noop, withData: [], completion: nil)
+        // After this point, we should not send anymore polling messages
     }
 
     /// Writes a message to engine.io, independent of transport.

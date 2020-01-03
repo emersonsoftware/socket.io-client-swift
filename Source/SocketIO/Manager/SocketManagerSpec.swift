@@ -45,7 +45,7 @@ import Foundation
 /// To disconnect a socket and remove it from the manager, either call `SocketIOClient.disconnect()` on the socket,
 /// or call one of the `disconnectSocket` methods on this class.
 ///
-@objc
+
 public protocol SocketManagerSpec : AnyObject, SocketEngineClient {
     // MARK: Properties
 

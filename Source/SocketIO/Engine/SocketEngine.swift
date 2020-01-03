@@ -288,12 +288,11 @@ open class SocketEngine : NSObject, URLSessionDelegate, SocketEnginePollable, So
 
         addHeaders(to: &req, includingCookies: session?.configuration.httpCookieStorage?.cookies(for: urlPollingWithSid))
 
-        ws = WebSocket(request: req)
+        ws = WebSocket(request: req, certPinner: FoundationSecurity(allowSelfSigned: selfSigned))
         ws?.delegate = self
         ws?.callbackQueue = engineQueue
 //        stream.enableSOCKSProxy = enableSOCKSProxy
 //        ws?.enableCompression = compress
-//        ws?.disableSSLCertValidation = selfSigned
 //        ws?.security = security?.security
         ws?.connect()
     }
